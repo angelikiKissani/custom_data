@@ -53,6 +53,6 @@ while (True) :
 			json.dump(file_data, file, indent = 4)
 		return print("done")
 	write_json(dictionary)
-	time.sleep(6)
+	time.sleep(10)
 
 
