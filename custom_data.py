@@ -1,58 +1,69 @@
-import json
 import time
 import datetime
 import random
-from flask import Flask, jsonify, request
-import os.path
-
-path="C:/Users/angel/OneDrive/GitHub/budget_planner/client/components/expenses"
-completeName = os.path.join(path, "data.json") 
+import requests
 
 
 
 
-descriptions=["PIPERORIZA","HELLENIC TRAIN","Pastards","Pet City","SYMFERI","HONDOS CENTER","Fitness Mall","Sinion","SEPHORA","Italian","Mono Bar","STEAM"
-			  "ODEON CINEMAS","Netflix","EVPSKROUTZ","COSMOTE AVT TELCO MPAY","MARKET IN CHIOS M415","COFFEE LAB",
-			  "MY MARKET 758 XIOS","BLENTER","SHOZO","COFFEEBERRY","MAMOUNAS","TO MAVRO PROVATO STOA",
-			  "AMANDIER  SIA GP","LIDL","INTERSPORT","COSMOS SPORT","PLASIO","EVPFAGI","APPLECOMBILL","ZOOFILIA",
-			  "ΕΝΤΟΛΗ/ ΕΜΒΑΣΜΑ ΣΕ ΑΛΛΗ ΤΡΑΠΕΖΑ","GERMANOS","VICKO","ZARA"
-			  ]
+
+descriptions=[["PIPERORIZA","Eating Out"],["HELLENIC TRAIN","Transportation"],["Pastards","Eating Out"],["Pet City","Pet Care"],["SYMFERI","Household"],
+			  ["HONDOS CENTER","Personal Care"],["Fitness Mall","Personal Care"],["Sinion","Personal Care"],["SEPHORA","Personal Care"],
+			  ["Mono Bar","Night Out"],["STEAM","Entertainment"],["ODEON CINEMAS","Entertainment"],["Netflix","Subsriptions"],
+			  ["EVPSKROUTZ","Shopping"],["COSMOTE AVT TELCO MPAY","Bills"],["MARKET IN CHIOS M415","Groceries"],
+			  ["COFFEE LAB","Groceries"],["BLENTER","Eating Out"],["SHOZO","Eating Out"],["COFFEEBERRY","Eating Out"],
+			  ["MAMOUNAS","Eating Out"],["TO MAVRO PROVATO STOA","Eating Out"],["AMANDIER SIA GP","Groceries"],["LIDL","Supermarket"],
+			  ["INTERSPORT","Shopping"],["COSMOS SPORT","Shopping"],["PLASIO","Shopping"],["EVPFAGI","Food Delivery"],["Wolt","Food Delivery"],
+			  ["APPLECOMBILL","Bills"],["ZOOFILIA","Pet Care"],["ΕΝΤΟΛΗ/ ΕΜΒΑΣΜΑ ΣΕ ΑΛΛΗ ΤΡΑΠΕΖΑ","Personal loand"],["GERMANOS","Bills"],
+			  ["VICKO","Shopping"],["ZARA","Shopping"],["MASOUTIS","Groceries"],["TIGER HELLAS SA","Shopping"],["BOX FOOD APP","Food Delivery"],
+			  ["AB PATRA 2 23","Groceries"],["NESPRESSO HELLAS SA","Groceries"],["PayPal Europe_HQHC","Credit Card"],["Revolut0689","Credit Card"]]
+
 
 
 
 format_string = '%Y-%m-%d %H:%M:%S'
 
 
-# Data to be written
-i=0
-accounting_balance=531.55
-while (True) :
+def generateTransaction(accounting_balance):
 	now = datetime.datetime.now()
 	price= random.randint(2,15)
+	randomTransaction=random.choice(descriptions)
+	# global accounting_balance
 	accounting_balance= accounting_balance-price
-	dictionary = {
+	newTransaction = {
 		"user_id":'66a927542493534018076593',
-		"transaction_id":random.randint(1000,2000),
+		"transaction_id":random.randint(1000,20000000),
 		"date": now.strftime("%a, %d %b"),
 		"time":now.strftime("%H:%M"),
-		"name":random.choice(descriptions),
-		"price":price,
+		"description":randomTransaction[0],
+		"price":-price,
+		"category":randomTransaction[1],
 		"accounting_balance":accounting_balance
 
 	}
-	print(now.strftime(" %a, %d %b %H:%M"))
-	i+=1
-	def write_json(new_data,filename= completeName):
-		with open(completeName,'r+') as file:
-			file_data = json.load(file)
-			# Join new_data with file_data inside emp_details
-			file_data["transactions"].append(new_data)
-			# Sets file's current position at offset.
-			file.seek(0)
-			# convert back to json.
-			json.dump(file_data, file, indent = 4)
-		return print("done")
-	write_json(dictionary)
-	time.sleep(10)
+	return newTransaction
 
 
+
+def sendTransaction(newTransaction):
+	try:
+		response = requests.post("https://budget-planner-backend-mcuw.onrender.com/api/receive-transaction", json=newTransaction)
+		if response.status_code == 200:
+			print("Transaction sent successfully!")
+		else:
+			print(f"Failed to send transaction. Status code: {response.status_code}")
+	except requests.exceptions.RequestException as e: print(e)
+
+
+
+
+while True:
+	try:
+		user_id={"id":"66a927542493534018076593"}
+		accounting_balance=requests.post("https://budget-planner-backend-mcuw.onrender.com/api/fetch-data",data={"id":"66a927542493534018076593"}).json()
+		print(accounting_balance)
+		transaction = generateTransaction(accounting_balance)
+		print(transaction)
+		sendTransaction(transaction)
+		time.sleep(43200)
+	except requests.exceptions.RequestException as e: print(e)
