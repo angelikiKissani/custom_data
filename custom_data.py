@@ -33,7 +33,7 @@ def generateTransaction(accounting_balance):
 	newTransaction = {
 		"user_id":'66a927542493534018076593',
 		"transaction_id":random.randint(1000,20000000),
-		"date": now.strftime("%a, %d %b"),
+		"date": now.strftime("%d/%m/%Y"),
 		"time":now.strftime("%H:%M"),
 		"description":randomTransaction[0],
 		"price":-price,
