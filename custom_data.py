@@ -65,5 +65,6 @@ while True:
 		transaction = generateTransaction(accounting_balance)
 		print(transaction)
 		sendTransaction(transaction)
-		time.sleep(43200)
+		time.sleep(100)
+		# time.sleep(43200)
 	except requests.exceptions.RequestException as e: print(e)
